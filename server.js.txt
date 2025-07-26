@@ -1,0 +1,40 @@
+const express = require("express");
+const cors = require("cors");
+const fs = require("fs");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const FILE = "leaderboard.json";
+
+// Create file if missing
+if (!fs.existsSync(FILE)) {
+  fs.writeFileSync(FILE, "[]");
+}
+
+app.get("/", (req, res) => {
+  res.send("Leaderboard server is working!");
+});
+
+app.get("/leaderboard", (req, res) => {
+  const data = JSON.parse(fs.readFileSync(FILE));
+  res.json(data);
+});
+
+app.post("/leaderboard", (req, res) => {
+  const { name, score } = req.body;
+  if (!name || typeof score !== "number") {
+    return res.status(400).json({ error: "Bad data" });
+  }
+
+  const data = JSON.parse(fs.readFileSync(FILE));
+  data.push({ name, score });
+  data.sort((a, b) => b.score - a.score);
+  const top = data.slice(0, 20);
+  fs.writeFileSync(FILE, JSON.stringify(top, null, 2));
+  res.json(top);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
