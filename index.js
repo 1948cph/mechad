@@ -23,7 +23,9 @@ app.post("/leaderboard", (req, res) => {
   }
 });
 
-const PORT = 3000;
+// Use Render's PORT environment variable or 3000 as fallback
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`Leaderboard server running on http://localhost:${PORT}`);
+  console.log(`Leaderboard server running on port ${PORT}`);
 });
